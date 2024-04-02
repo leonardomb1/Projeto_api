@@ -1,0 +1,17 @@
+{
+    "numTentativas": 200,
+    "postMaximo": 50,
+    "requestPacote": 100,
+    "timeoutSql": 30000,
+    "threadMaxTask" : 50,
+    "threadMaxProc": 20,
+    "esperaPacote" : 2000,
+    "esperaApi": 500,
+    "pausa": 2000,
+    "timeoutClient": 900000,
+    "manualOverride":0,
+    "manualOverPage": 0,
+    "endPage" : 0,
+    "manualOverrideEnd": 0,
+    "tipoInsert": 2
+}

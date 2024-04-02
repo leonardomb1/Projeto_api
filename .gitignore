@@ -1,0 +1,7 @@
+**/bin/
+**.vscode/
+*/.vscode/
+**/obj/
+**/publish/
+*/bin/
+*/obj/
