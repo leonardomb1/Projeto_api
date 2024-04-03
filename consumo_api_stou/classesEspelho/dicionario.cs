@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using Newtonsoft.Json;
 
 namespace API.classesEspelho
@@ -40,7 +37,6 @@ namespace API.classesEspelho
                 }
                 else
                 {
-                    Console.WriteLine($"Warning: Object key '{column.Value}' not found in entry for column '{column.Key}'");
                     mapping[column.Key] = null;
                 }
             }

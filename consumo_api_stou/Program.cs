@@ -4,7 +4,6 @@ using Microsoft.Data.SqlClient;
 using API.classesEspelho;
 using System.Collections.Concurrent;
 using System.Data;
-using System.Collections.Immutable;
 class Program
 {
     private static readonly IHttpClientFactory HttpClientFactory;
@@ -26,11 +25,11 @@ class Program
 
     public static async Task<int> Main(string[] args)
     {
-        string connectionString = @"Data Source = INDSNSQL01\DESENVOLVIMENTO; Initial Catalog = bi_rip_rawZone; Integrated Security = True;TrustServerCertificate=True;Encrypt=False;Pooling=True;Max Pool Size=500;MultipleActiveResultSets=True;Connect Timeout=500;";
-        string firstDate = "01/01/2024";
-        string tabelaDestino = "STOU_JSON_DATA_ponto_espelho";
-        string initString = "TWm3CAdbUxZq";
-        string restUri = "https://awstou.ifractal.com.br/ripbr/rest/";
+        string connectionString = args[0];
+        string firstDate = args[1];
+        string tabelaDestino = args[2];
+        string initString = args[3];
+        string restUri = args[4];
 
         string token = initString + Init.dtFim;
         string sha256Token = ComputeSha256Hash(token);
@@ -221,24 +220,20 @@ class Program
 
     public static async Task BulkInsertRawAsync(SqlConnection con, List<Item> entries, string tabelaDestino, int pages)
     {
-        // Create a DataTable to hold the data
         DataTable dt = new DataTable();
-        List<string> getColumns = DatabaseColumns.GetSTOU_INSERT(entries.FirstOrDefault(), 1).Keys.ToList();
-
-        // Assume that DatabaseColumns.ColumnMapping contains the column mappings  
+        List<string> getColumns = DatabaseColumns.GetSTOU_INSERT(entries.FirstOrDefault(), 1).Keys.ToList(); 
+        
         foreach (var column in getColumns)
         {
             dt.Columns.Add(column);
         }
 
-        // Add the data to the DataTable
         foreach (var entry in entries)
         {
             var STOU_INSERT = DatabaseColumns.GetSTOU_INSERT(entry, pages - 1);
             dt.Rows.Add(STOU_INSERT.Values.ToArray());
         }
 
-        // Perform the bulk insert
         using (SqlBulkCopy bulkCopy = new SqlBulkCopy(con))
         {
             bulkCopy.DestinationTableName = tabelaDestino;
