@@ -211,8 +211,9 @@ class Program
                 break;
             }
 
-            catch (Exception)
+            catch (Exception ex)
             {
+                File.WriteAllText($"log{DateTime.UtcNow}_PG_{page}.txt", ex.ToString());
                 await Task.Delay(Init.pausa);
             }
         }
@@ -220,24 +221,36 @@ class Program
 
     public static async Task BulkInsertRawAsync(SqlConnection con, List<Item> entries, string tabelaDestino, int pages)
     {
-        DataTable dt = new DataTable();
-        List<string> getColumns = DatabaseColumns.GetSTOU_INSERT(entries.FirstOrDefault(), 1).Keys.ToList(); 
-        
-        foreach (var column in getColumns)
+        for (int i = 0; i < 5; i++)
         {
-            dt.Columns.Add(column);
-        }
+            try
+                {
+                DataTable dt = new DataTable();
+                List<string> getColumns = DatabaseColumns.GetSTOU_INSERT(entries.FirstOrDefault(), 1).Keys.ToList(); 
+                
+                foreach (var column in getColumns)
+                {
+                    dt.Columns.Add(column);
+                }
 
-        foreach (var entry in entries)
-        {
-            var STOU_INSERT = DatabaseColumns.GetSTOU_INSERT(entry, pages - 1);
-            dt.Rows.Add(STOU_INSERT.Values.ToArray());
-        }
+                foreach (var entry in entries)
+                {
+                    var STOU_INSERT = DatabaseColumns.GetSTOU_INSERT(entry, pages - 1);
+                    dt.Rows.Add(STOU_INSERT.Values.ToArray());
+                }
 
-        using (SqlBulkCopy bulkCopy = new SqlBulkCopy(con))
-        {
-            bulkCopy.DestinationTableName = tabelaDestino;
-            await bulkCopy.WriteToServerAsync(dt);
+                using (SqlBulkCopy bulkCopy = new SqlBulkCopy(con))
+                {
+                    bulkCopy.DestinationTableName = tabelaDestino;
+                    await bulkCopy.WriteToServerAsync(dt);
+                }
+                break;
+            }
+            catch (Exception ex)
+            {
+                File.WriteAllText($"log{DateTime.UtcNow}_PG_{pages}.txt", ex.ToString());
+                await Task.Delay(Init.pausa);
+            }
         }
     }
 }
