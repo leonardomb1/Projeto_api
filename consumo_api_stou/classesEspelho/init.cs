@@ -2,6 +2,11 @@ namespace API.classesEspelho;
 
 public class Init
 {
+    public static int SUCESSO = 1;
+    public static int FALHA = 0;
+    public static int SAIDA_FALHA = 1;
+    public static int SAIDA_NORMAL = 0;
+    public static int ESTADO_INICIAL = 0;
     public static int numTentativas;
     public static int postMaximo;
     public static int requestPacote;
