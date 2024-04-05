@@ -2,6 +2,9 @@ using Newtonsoft.Json;
 
 namespace API.classesEspelho
 {
+    /// <summary>
+    /// Classe que mapeia os retornos possíveis JSON em colunas SQL, ao ler um arquivo mapping.json
+    /// </summary>
     public static class DatabaseColumns
     {
         private static readonly Dictionary<string, string> ColumnMapping;
@@ -25,7 +28,12 @@ namespace API.classesEspelho
                 return [];
             }
         }
-
+        /// <summary>
+        /// Para cada entrada do JSON deserializado a uma lista em memória.
+        /// </summary>
+        /// <param name="entry">Objeto de entrada do Objeto em mémoria que contém o JSON.</param>
+        /// <param name="page">Paginação do retorno</param>
+        /// <returns></returns>
         public static Dictionary<string, object> GetSTOU_INSERT(Item entry, int page)
         {
             var mapping = new Dictionary<string, object>();

@@ -1,5 +1,7 @@
 namespace API.classesEspelho;
-
+/// <summary>
+/// TODO: Atualmente é o mapeamento em classe do retorno de uma webservice, precisa tornar dinâmico, fazendo mapeamento em arquivo JSON.
+/// </summary>
 public class Item
 {
     public string? codigo { get; set; }

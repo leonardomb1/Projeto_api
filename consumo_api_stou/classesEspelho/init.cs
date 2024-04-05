@@ -1,5 +1,7 @@
 namespace API.classesEspelho;
-
+/// <summary>
+/// Inicializa as váriaveis e constantes do sistema. Lendo a partir de um arquivo config.json.
+/// </summary>
 public class Init
 {
     public static int SUCESSO = 1;
@@ -24,7 +26,9 @@ public class Init
     public static string dtFim;
     public static int tipoInsert;
     public static IConfiguration Configuration { get; set; }
-
+    /// <summary>
+    /// Construtor dinâmico que busca o arquivo e atribuí os valores às variáveis.
+    /// </summary>
     public static void InitializeConfiguration()
     {
         var builder = new ConfigurationBuilder()
