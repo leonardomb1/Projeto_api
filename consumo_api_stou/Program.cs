@@ -240,18 +240,17 @@ class Program
     /// <param name="options">Opção de configuração de paralelismo de thread.</param>
     /// <param name="results">Objeto que contém o resultado da extração em um array de objetos.</param>
     /// <returns>Retornará 1 em sucesso da operação e 0 em caso de falha na operação.</returns>
-    public static async Task<int> RealizaInsertBulkInsert(int pagina, string tabelaDestino, string connectionString, ParallelOptions options, Root[]? results)
+    public static async Task<int> RealizaInsertBulkInsert(int pagina, string tabelaDestino, string connectionString,ParallelOptions options, Root[]? results)
     {
         int exec = Init.ESTADO_INICIAL;
+        using SqlConnection connection = new(connectionString);
+        await connection.OpenAsync();
 
-        await Parallel.ForEachAsync(results, options, async (result, ct) => {
-
-            using SqlConnection connection = new(connectionString);
-            await connection.OpenAsync(ct);
-
+        foreach (var result in results)
+        {
             var bulkData = result.itens.Where(x => x != null).Cast<Item>().ToList();
             exec = await BulkInsertRawAsync(connection, bulkData, tabelaDestino, pagina);
-        });
+        }
 
         return exec;
     }
