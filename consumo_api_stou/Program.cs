@@ -101,7 +101,7 @@ class Program
             }
             catch (Exception ex) when (i < Init.numTentativas - 1)
             {
-                Console.WriteLine($"Erro aconteceu na pagina : {page} - Com erro {ex.Message} Aguardando {Init.pausa} segundos.");
+                Console.WriteLine($"Erro aconteceu na pagina : {page} - Com erro {ex.Message} E {ex.Source} E {ex.InnerException} E {ex.Data} Aguardando {Init.pausa} segundos.");
                 await Task.Delay(Init.pausa);
             }
         }
@@ -168,7 +168,7 @@ class Program
                 // Se não houver sucesso de inserção em massa utilizar inserção em linha.
                 else if (Init.tipoInsert == 2)
                 {
-                    exec = await RealizaInsertBulkInsert(pagina, tabelaDestino, connectionString, options, results);
+                    exec = await RealizaInsertBulkInsert(pagina, tabelaDestino, connectionString, results);
                     
                     if (exec != Init.SUCESSO) await RealizaInsertRaw(tabelaDestino, connectionString, options, results);
                 }
@@ -181,7 +181,7 @@ class Program
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erro: {ex.Message}");
+                Console.WriteLine($"Erro: {ex.Message} E {ex.Source} E {ex.InnerException} E {ex.Data}");
             }
             // Liberando mémoria das threads abertas.
             finally
@@ -218,16 +218,17 @@ class Program
     /// <returns>Retornará 1 em sucesso da operação e 0 em caso de falha na operação.</returns>
     public static async Task<int> RealizaInsertRaw(string tabelaDestino, string connectionString, ParallelOptions options, Root[]? results)
     {
+        using SqlConnection connection = new(connectionString);
+        await connection.OpenAsync();
+        
         await Parallel.ForEachAsync(results, options, async (result, ct) =>
         {
-            using SqlConnection connection = new(connectionString);
-            await connection.OpenAsync(ct);
-
             var page = result.page;
             var insertTasks = result.itens.Select(entrada => InsertRawAsync(page, connection, entrada, tabelaDestino));
-
             await Task.WhenAll(insertTasks);
         });
+
+        await connection.CloseAsync();
         return Init.SUCESSO;
     }
     /// <summary>
@@ -240,7 +241,7 @@ class Program
     /// <param name="options">Opção de configuração de paralelismo de thread.</param>
     /// <param name="results">Objeto que contém o resultado da extração em um array de objetos.</param>
     /// <returns>Retornará 1 em sucesso da operação e 0 em caso de falha na operação.</returns>
-    public static async Task<int> RealizaInsertBulkInsert(int pagina, string tabelaDestino, string connectionString,ParallelOptions options, Root[]? results)
+    public static async Task<int> RealizaInsertBulkInsert(int pagina, string tabelaDestino, string connectionString, Root[]? results)
     {
         int exec = Init.ESTADO_INICIAL;
         using SqlConnection connection = new(connectionString);
@@ -251,7 +252,8 @@ class Program
             var bulkData = result.itens.Where(x => x != null).Cast<Item>().ToList();
             exec = await BulkInsertRawAsync(connection, bulkData, tabelaDestino, pagina);
         }
-
+        
+        await connection.CloseAsync();
         return exec;
     }
     /// <summary>
