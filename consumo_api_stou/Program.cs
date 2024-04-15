@@ -131,14 +131,15 @@ class Program
         var semaphore = new SemaphoreSlim(Init.threadMaxTask);
 
         // Abaixo é realizado GET em várias threads em simultaneo, sendo rateados as páginas utilizando um "semáforo" de Tasks.
-        for (int i = 0; pagina <= final; i++)
+        while(pagina <= final)
         {
             var tasks = new List<Task<Root>>();
 
             for (int j = 0; j <= Init.requestPacote; j++)
             {
-                if (pagina > maxPages) { break; }
-                if (!processingPages.TryAdd(pagina, 0)) { continue; }
+                if (pagina > (Init.manualOverrideEnd == 1 ? Init.endPage : maxPages)) break; 
+                
+                if (!processingPages.TryAdd(pagina, 0)) continue;
 
                 await semaphore.WaitAsync();
                 tasks.Add(GetDataFromApi(pagina, firstDate, restUri, sha256Token).ContinueWith(t =>
